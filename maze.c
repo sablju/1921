@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAX_ROWS 10
 #define MAX_COLS 10
@@ -14,32 +15,31 @@ void initializeMap(const char *filePath) {
         return;
     }
 
-    char c;
-    int row = 0, col = 0;
+    char line[MAX_COLS + 2]; // Additional space for '\n' and '\0'
+    int row = 0;
 
-    while ((c = fgetc(file)) != EOF && row < MAX_ROWS) {
-        if (c == '\n') {
-            row++;
-            col = 0;
-        } else {
-            map[row][col] = c;
-
-            if (c == 'S') {
-                startRow = row;
-                startCol = col;
-            }
-            col++;
-        }
+    while (fgets(line, sizeof(line), file) && row < MAX_ROWS) {
+        strncpy(map[row], line, MAX_COLS); // Copy line to map[row]
+        row++;
     }
 
-    playerRow = startRow;
-    playerCol = startCol;
-    map[playerRow][playerCol] = 'X';
+    // Find player and start position in the map
+    for (int i = 0; i < MAX_ROWS; i++) {
+        for (int j = 0; j < MAX_COLS; j++) {
+            if (map[i][j] == 'S') {
+                startRow = i;
+                startCol = j;
+                playerRow = i;
+                playerCol = j;
+            }
+        }
+    }
 
     fclose(file);
 }
 
 void displayMap() {
+    printf("Current Map:\n");
     for (int i = 0; i < MAX_ROWS; i++) {
         for (int j = 0; j < MAX_COLS; j++) {
             printf("%c", map[i][j]);
@@ -52,7 +52,6 @@ int canMove(int newRow, int newCol) {
     if (newRow < 0 || newRow >= MAX_ROWS || newCol < 0 || newCol >= MAX_COLS) {
         return 0;
     }
-
     return map[newRow][newCol] == ' ' || map[newRow][newCol] == 'E';
 }
 
@@ -65,19 +64,21 @@ void makeMove(int newRow, int newCol) {
 }
 
 int main() {
-    char filePath[] = "map.txt";
+    char filePath[] = "map4.csv";
     initializeMap(filePath);
 
     char action;
     int newPlayerRow, newPlayerCol;
 
     while (1) {
-        printf("Enter move (w/a/s/d) or 'M' to view the map: ");
+        displayMap();
+
+        printf("Enter move (w/a/s/d) or 'q' to quit: ");
         scanf(" %c", &action);
 
-        if (action == 'M' || action == 'm') {
-            displayMap();
-            continue;
+        if (action == 'q' || action == 'Q') {
+            printf("Exiting the game. Goodbye!\n");
+            break;
         }
 
         newPlayerRow = playerRow;
@@ -106,12 +107,8 @@ int main() {
         } else {
             printf("Cannot move to the specified position.\n");
         }
-
-        if (playerRow == 4 && playerCol == 3) {
-            printf("Congratulations! You win!\n");
-            break;
-        }
     }
 
     return 0;
 }
+
