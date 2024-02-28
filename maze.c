@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
 
-#define MAX_ROWS 100
-#define MAX_COLS 100
+constexpr int MAX_ROWS = 100;
+constexpr int MAX_COLS = 100;
+constexpr int MIN_ROWS = 5;
+constexpr int MIN_COLS = 5;
 
 typedef struct {
     char map[MAX_ROWS][MAX_COLS];
@@ -13,13 +18,66 @@ typedef struct {
     int startCol;
 } GameMap;
 
-void initializeMap(GameMap *game, const char *filePath) {
+void initializeMap(GameMap *game, const char *filePath)
+ {
     FILE *file = fopen(filePath, "r");
-    if (file == NULL) {
+   
+    if (file == NULL) 
+    {
         printf("Error opening file: %s\n", filePath);
         exit(EXIT_FAILURE);
     }
+    std::string name = filePath;
 
+    int map_rows = (name[name.size()-7]-'0');//行
+    int map_cols = (name[name.size()-5]-'0');//列
+   
+
+    std::ifstream in(filePath);
+    std::string lines;
+
+    std::vector<int>Cols;
+    while (getline(in, lines)) 
+    {
+        {
+            Cols.push_back(lines.size());
+        }
+    }
+
+if(Cols.size()<5)
+{
+    std::cout<<"ERROR:Rows less than 5 !!!"<<std::endl;
+    
+}
+else if (Cols.size() >100)
+{
+    std::cout<<"ERROR:Rows greater than 100 !!!"<<std::endl;
+    
+}
+
+if(Cols.size()!=map_rows)
+{
+    std::cout << "ERROR:Wrong number of rows !!!" << std::endl;
+    
+}
+for (size_t i = 0; i < Cols.size()-1; i++)
+{
+    if(Cols[i]<5)
+    {
+        std::cout<<"ERROR:The number of columns is less than 5 !!!"<<std::endl;
+        
+    }
+    else if (Cols[i] >100)
+    {
+        std::cout<<"ERROR:The number of columns greater than 100 !!!"<<std::endl;
+       
+    }
+    if (Cols[i]!=map_cols)
+    {
+        std::cout << "ERROR:Wrong number of cols !!!" << std::endl;
+        
+    }
+}
     char line[MAX_COLS + 2]; // Additional space for '\n' and '\0'
     int row = 0;
 
@@ -47,15 +105,16 @@ void initializeMap(GameMap *game, const char *filePath) {
     game->playerCol = game->startCol;
     game->map[game->playerRow][game->playerCol] = 'X';
 
-    fclose(file);
+
+    fclose(file); 
 }
 
 void displayMap(GameMap *game) {
-    printf("Current Map:\n");
+    std::cout<<"Current Map:"<<std::endl;
     for (int i = 0; i < MAX_ROWS && game->map[i][0] != '\0'; i++) {
         printf("%s", game->map[i]);
     }
-    printf("\n");
+    printf("\n"); 
 }
 
 int canMove(GameMap *game, int newRow, int newCol) {
@@ -81,8 +140,8 @@ void makeMove(GameMap *game, int newRow, int newCol) {
     }
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
+int main(int argc, char* argv[]) {
+     if (argc != 2) {
         printf("Usage: %s <map_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
@@ -90,15 +149,16 @@ int main(int argc, char *argv[]) {
     GameMap game;
     initializeMap(&game, argv[1]);
 
-    char action;
+    
     int newPlayerRow, newPlayerCol;
 
     while (1) {
+        char action;
         printf("Enter move (w/a/s/d) or 'M' to view the map, 'Q' to quit: ");
         scanf(" %c", &action);
 
         if (action == 'q' || action == 'Q') {
-            printf("Exiting the game. Goodbye!\n");
+            printf("Exiting the game. Goodbye!!!\n");
             break;
         }
 
